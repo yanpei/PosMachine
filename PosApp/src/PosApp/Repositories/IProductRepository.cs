@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using PosApp.Domain;
 
-namespace PosApp
+namespace PosApp.Repositories
 {
     public interface IProductRepository
     {

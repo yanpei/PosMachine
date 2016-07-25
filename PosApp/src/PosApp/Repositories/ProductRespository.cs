@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Linq;
+using PosApp.Domain;
 
-namespace PosApp
+namespace PosApp.Repositories
 {
     class ProductRespository : IProductRepository
     {

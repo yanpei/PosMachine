@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PosApp.Domain;
+using PosApp.Repositories;
 
-namespace PosApp
+namespace PosApp.Services
 {
     public class PosService
     {

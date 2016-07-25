@@ -4,6 +4,8 @@ using Autofac;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
+using PosApp.Repositories;
+using PosApp.Services;
 using Module = Autofac.Module;
 
 namespace PosApp

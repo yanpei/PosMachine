@@ -1,25 +1,12 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using Autofac;
 
-namespace PosApp.Test
+namespace PosApp.Test.Common
 {
-    public class FactBase : IDisposable
+    static class DatabaseHelper
     {
-        readonly IContainer m_container;
-
-        public FactBase()
-        {
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterModule(new PosAppModule());
-
-            m_container = containerBuilder.Build();
-            ResetDatabase();
-        }
-
-        static void ResetDatabase()
+        public static void ResetDatabase()
         {
             const string cleanupSql =
                 "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';" +
@@ -43,16 +30,6 @@ namespace PosApp.Test
                 command.CommandType = CommandType.Text;
                 command.ExecuteNonQuery();
             }
-        }
-
-        protected IContainer GetContainer()
-        {
-            return m_container;
-        }
-
-        public void Dispose()
-        {
-            m_container.Dispose();
         }
     }
 }

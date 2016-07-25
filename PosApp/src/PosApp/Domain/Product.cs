@@ -1,7 +1,7 @@
 using System;
 using FluentNHibernate.Mapping;
 
-namespace PosApp
+namespace PosApp.Domain
 {
     public class Product
     {

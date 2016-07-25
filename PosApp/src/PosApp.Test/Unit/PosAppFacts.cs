@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Linq;
 using Autofac;
+using PosApp.Domain;
+using PosApp.Services;
+using PosApp.Test.Common;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace PosApp.Test
+namespace PosApp.Test.Unit
 {
     public class PosAppFacts : FactBase
     {
+        public PosAppFacts(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+        }
+
         [Fact]
         public void should_fail_if_bought_products_are_not_provided()
         {
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
 
             Assert.Throws<ArgumentNullException>(() => posService.GetReceipt(null));
         }
@@ -20,7 +28,7 @@ namespace PosApp.Test
         [InlineData(0)]
         public void should_fail_if_one_of_bought_product_amount_is_less_than_or_equal_to_zero(int invalidAmount)
         {
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
             var invalidProduct = new BoughtProduct("barcode001", invalidAmount);
             var validProduct = new BoughtProduct("barcode002", 1);
 
@@ -32,7 +40,7 @@ namespace PosApp.Test
         [Fact]
         public void should_fail_if_bought_product_does_not_exist()
         {
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
             var notExistedProduct = new BoughtProduct("barcode", 1);
 
             Assert.Throws<ArgumentException>(() => posService.GetReceipt(new[] {notExistedProduct}));
@@ -44,7 +52,7 @@ namespace PosApp.Test
             CreateProductFixture(
                 new Product {Barcode = "barcodesame", Name = "I do not care" },
                 new Product {Barcode = "barcodediff", Name = "I do not care" });
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
             var boughtProduct = new BoughtProduct("barcodesame", 1);
             var sameBoughtProduct = new BoughtProduct("barcodesame", 2);
             var differentBoughtProduct = new BoughtProduct("barcodediff", 1);
@@ -61,7 +69,7 @@ namespace PosApp.Test
         {
             CreateProductFixture(
                 new Product { Barcode = "barcode", Price = 10M, Name = "I do not care"});
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
 
             Receipt receipt = posService.GetReceipt(
                 new[] { new BoughtProduct("barcode", 2) });
@@ -77,7 +85,7 @@ namespace PosApp.Test
                 new Product { Barcode = "barcode001", Price = 10M, Name = "I do not care" },
                 new Product { Barcode = "barcode002", Price = 20M, Name = "I do not care" });
 
-            var posService = GetContainer().Resolve<PosService>();
+            PosService posService = CreatePosService();
 
             // when
             Receipt receipt = posService.GetReceipt(
@@ -86,10 +94,15 @@ namespace PosApp.Test
             Assert.Equal(80M, receipt.Total);
         }
 
+        PosService CreatePosService()
+        {
+            var posService = GetScope().Resolve<PosService>();
+            return posService;
+        }
+
         void CreateProductFixture(params Product[] products)
         {
-            var repository = GetContainer().Resolve<IProductRepository>();
-            Array.ForEach(products, p => repository.Save(p));
+            Array.ForEach(products, p => Fixtures.Products.Create(p));
         }
     }
 }

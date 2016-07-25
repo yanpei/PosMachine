@@ -1,4 +1,4 @@
-﻿namespace PosApp
+﻿namespace PosApp.Domain
 {
     public class BoughtProduct
     {
