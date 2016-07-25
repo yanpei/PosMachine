@@ -1,16 +1,27 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using Xunit;
 
 namespace PosApp.Test
 {
-    public class PosAppFacts
+    public class PosAppFacts : FactBase
     {
+        public PosAppFacts()
+            : base(RegisterCustomComponent)
+        {
+        }
+
+        static void RegisterCustomComponent(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<StubProductRepository>()
+                .As<IProductRepository>().InstancePerLifetimeScope();
+        }
+
         [Fact]
         public void should_fail_if_bought_products_are_not_provided()
         {
-            IProductRepository repository = CreateProductRepository();
-            var posService = new PosService(repository);
+            var posService = GetContainer().Resolve<PosService>();
 
             Assert.Throws<ArgumentNullException>(() => posService.GetReceipt(null));
         }
@@ -20,8 +31,7 @@ namespace PosApp.Test
         [InlineData(0)]
         public void should_fail_if_one_of_bought_product_amount_is_less_than_or_equal_to_zero(int invalidAmount)
         {
-            IProductRepository repository = CreateProductRepository();
-            var posService = new PosService(repository);
+            var posService = GetContainer().Resolve<PosService>();
             var invalidProduct = new BoughtProduct("barcode001", invalidAmount);
             var validProduct = new BoughtProduct("barcode002", 1);
 
@@ -33,8 +43,7 @@ namespace PosApp.Test
         [Fact]
         public void should_fail_if_bought_product_does_not_exist()
         {
-            IProductRepository repository = CreateProductRepository();
-            var posService = new PosService(repository);
+            var posService = GetContainer().Resolve<PosService>();
             var notExistedProduct = new BoughtProduct("barcode", 1);
 
             Assert.Throws<ArgumentException>(() => posService.GetReceipt(new[] {notExistedProduct}));
@@ -43,10 +52,10 @@ namespace PosApp.Test
         [Fact]
         public void should_merge_receipt_items()
         {
-            IProductRepository repository = CreateProductRepository(
+            CreateProductFixture(
                 new Product {Barcode = "barcodesame"},
                 new Product {Barcode = "barcodediff"});
-            var posService = new PosService(repository);
+            var posService = GetContainer().Resolve<PosService>();
             var boughtProduct = new BoughtProduct("barcodesame", 1);
             var sameBoughtProduct = new BoughtProduct("barcodesame", 2);
             var differentBoughtProduct = new BoughtProduct("barcodediff", 1);
@@ -61,9 +70,9 @@ namespace PosApp.Test
         [Fact]
         public void should_calculate_subtotal()
         {
-            IProductRepository repository = CreateProductRepository(
+            CreateProductFixture(
                 new Product { Barcode = "barcode", Price = 10M });
-            var posService = new PosService(repository);
+            var posService = GetContainer().Resolve<PosService>();
 
             Receipt receipt = posService.GetReceipt(
                 new[] { new BoughtProduct("barcode", 2) });
@@ -74,20 +83,24 @@ namespace PosApp.Test
         [Fact]
         public void should_calculate_total()
         {
-            IProductRepository repository = CreateProductRepository(
+            // given
+            CreateProductFixture(
                 new Product { Barcode = "barcode001", Price = 10M },
                 new Product { Barcode = "barcode002", Price = 20M });
-            var posService = new PosService(repository);
 
+            var posService = GetContainer().Resolve<PosService>();
+
+            // when
             Receipt receipt = posService.GetReceipt(
                 new[] { new BoughtProduct("barcode001", 2), new BoughtProduct("barcode002", 3) });
 
             Assert.Equal(80M, receipt.Total);
         }
 
-        static IProductRepository CreateProductRepository(params Product[] products)
+        void CreateProductFixture(params Product[] products)
         {
-            return new StubProductRepository(products ?? new Product[0]);
+            var repository = GetContainer().Resolve<IProductRepository>();
+            Array.ForEach(products, p => repository.Save(p));
         }
     }
 }

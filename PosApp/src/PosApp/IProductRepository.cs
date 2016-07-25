@@ -6,5 +6,6 @@ namespace PosApp
     {
         IList<Product> GetByBarcodes(params string[] barcodes);
         int CountByBarcodes(IList<string> barcodes);
+        void Save(Product product);
     }
 }
