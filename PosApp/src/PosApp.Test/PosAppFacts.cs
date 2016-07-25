@@ -8,16 +8,9 @@ namespace PosApp.Test
     public class PosAppFacts : FactBase
     {
         public PosAppFacts()
-            : base(RegisterCustomComponent)
+            : base(_ => { })
         {
         }
-
-        static void RegisterCustomComponent(ContainerBuilder containerBuilder)
-        {
-            containerBuilder.RegisterType<StubProductRepository>()
-                .As<IProductRepository>().InstancePerLifetimeScope();
-        }
-
         [Fact]
         public void should_fail_if_bought_products_are_not_provided()
         {
