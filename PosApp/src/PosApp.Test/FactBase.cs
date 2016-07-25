@@ -10,11 +10,10 @@ namespace PosApp.Test
     {
         readonly IContainer m_container;
 
-        public FactBase(Action<ContainerBuilder> customRegistration)
+        public FactBase()
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule(new PosAppModule());
-            customRegistration?.Invoke(containerBuilder);
 
             m_container = containerBuilder.Build();
             ResetDatabase();

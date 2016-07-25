@@ -7,10 +7,6 @@ namespace PosApp.Test
 {
     public class PosAppFacts : FactBase
     {
-        public PosAppFacts()
-            : base(_ => { })
-        {
-        }
         [Fact]
         public void should_fail_if_bought_products_are_not_provided()
         {
@@ -46,8 +42,8 @@ namespace PosApp.Test
         public void should_merge_receipt_items()
         {
             CreateProductFixture(
-                new Product {Barcode = "barcodesame"},
-                new Product {Barcode = "barcodediff"});
+                new Product {Barcode = "barcodesame", Name = "I do not care" },
+                new Product {Barcode = "barcodediff", Name = "I do not care" });
             var posService = GetContainer().Resolve<PosService>();
             var boughtProduct = new BoughtProduct("barcodesame", 1);
             var sameBoughtProduct = new BoughtProduct("barcodesame", 2);
@@ -64,7 +60,7 @@ namespace PosApp.Test
         public void should_calculate_subtotal()
         {
             CreateProductFixture(
-                new Product { Barcode = "barcode", Price = 10M });
+                new Product { Barcode = "barcode", Price = 10M, Name = "I do not care"});
             var posService = GetContainer().Resolve<PosService>();
 
             Receipt receipt = posService.GetReceipt(
@@ -78,8 +74,8 @@ namespace PosApp.Test
         {
             // given
             CreateProductFixture(
-                new Product { Barcode = "barcode001", Price = 10M },
-                new Product { Barcode = "barcode002", Price = 20M });
+                new Product { Barcode = "barcode001", Price = 10M, Name = "I do not care" },
+                new Product { Barcode = "barcode002", Price = 20M, Name = "I do not care" });
 
             var posService = GetContainer().Resolve<PosService>();
 

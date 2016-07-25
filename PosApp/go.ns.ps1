@@ -2,7 +2,7 @@ param(
     $taskList
 )
 
-import-module ".\psake-master\psake.psm1"
+import-module ".\build\psake-master\psake.psm1"
 
 if ($taskList -eq "help") {
     invoke-psake -docs

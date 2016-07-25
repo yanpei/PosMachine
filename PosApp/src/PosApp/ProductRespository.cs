@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate;
+using NHibernate.Linq;
 
 namespace PosApp
 {
@@ -14,17 +16,21 @@ namespace PosApp
 
         public IList<Product> GetByBarcodes(params string[] barcodes)
         {
-            throw new System.NotImplementedException();
+            return m_session.Query<Product>()
+                .Where(p => barcodes.Contains(p.Barcode))
+                .ToArray();
         }
 
         public int CountByBarcodes(IList<string> barcodes)
         {
-            throw new System.NotImplementedException();
+            return m_session.Query<Product>()
+                .Count(p => barcodes.Contains(p.Barcode));
         }
 
         public void Save(Product product)
         {
-            throw new System.NotImplementedException();
+            m_session.Save(product);
+            m_session.Flush();
         }
     }
 }
