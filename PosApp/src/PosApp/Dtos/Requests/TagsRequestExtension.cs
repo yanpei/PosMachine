@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PosApp.Domain;
 
@@ -11,16 +10,24 @@ namespace PosApp.Dtos.Requests
         {
             if (tags == null)
             {
-                throw new ArgumentNullException(nameof(tags));
+                return null;
             }
 
             string[] tagArray = tags.ToArray();
-            if (tagArray.Any(string.IsNullOrWhiteSpace))
+            if (tagArray.Length == 0)
             {
-                throw new ArgumentException("Barcode cannot contains empty one.");
+                return null;
             }
 
-            return tagArray.Select(ToBoughtProduct).ToArray();
+            if (tagArray.Any(string.IsNullOrWhiteSpace))
+            {
+                return null;
+            }
+
+            BoughtProduct[] boughtProducts = tagArray.Select(ToBoughtProduct)
+                .TakeWhile(bp => bp != null)
+                .ToArray();
+            return boughtProducts.Length == tagArray.Length ? boughtProducts : null;
         }
 
         static BoughtProduct ToBoughtProduct(string tag)
@@ -36,7 +43,7 @@ namespace PosApp.Dtos.Requests
                 int shouldNotBeAmount = TryGetAmount(tag, 0);
                 if (shouldNotBeAmount != -1)
                 {
-                    throw new FormatException($"Invalid tag {tag}");
+                    return null;
                 }
 
                 return new BoughtProduct(tag, 1);

@@ -5,7 +5,10 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using PosApp.Domain;
+using PosApp.Dtos.Requests;
+using PosApp.Dtos.Responses;
 using PosApp.Services;
+using WebApiContrib.Formatting;
 
 namespace PosApp.Controllers
 {
@@ -19,13 +22,18 @@ namespace PosApp.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage BuildReceipt(string[] barcodes)
+        public HttpResponseMessage BuildReceipt(string[] tags)
         {
+            BoughtProduct[] boughtProducts = tags.ToBoughtProducts();
+            if (boughtProducts == null)
+            {
+                throw new HttpException(400, "Invalid tags format.");
+            }
+
             try
             {
-                Receipt receipt = m_posService.GetReceipt(
-                    barcodes.Select(bc => new BoughtProduct(bc, 1)).ToArray());
-                return Request.CreateResponse(HttpStatusCode.OK, receipt);
+                Receipt receipt = m_posService.GetReceipt(boughtProducts);
+                return Request.CreateResponse(HttpStatusCode.OK, receipt.ToReceiptDto(), new PlainTextFormatter());
             }
             catch (ArgumentException error)
             {

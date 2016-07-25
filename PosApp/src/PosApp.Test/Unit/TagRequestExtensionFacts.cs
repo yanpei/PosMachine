@@ -13,8 +13,7 @@ namespace PosApp.Test.Unit
         {
             string[] nullTags = null;
 
-            Assert.Throws<ArgumentNullException>(
-                () => nullTags.ToBoughtProducts());
+            Assert.Null(nullTags.ToBoughtProducts());
         }
 
         [Theory]
@@ -25,8 +24,7 @@ namespace PosApp.Test.Unit
         {
             string[] containsEmptyCode = {"barcode", emptyTag};
 
-            Assert.Throws<ArgumentException>(
-                () => containsEmptyCode.ToBoughtProducts());
+            Assert.Null(containsEmptyCode.ToBoughtProducts());
         }
 
         [Theory]
@@ -73,7 +71,7 @@ namespace PosApp.Test.Unit
         {
             string[] inValidTags = { invalidTag };
 
-            Assert.Throws<FormatException>(() => inValidTags.ToBoughtProducts());
+            Assert.Null(inValidTags.ToBoughtProducts());
         }
     }
 }
