@@ -14,10 +14,7 @@ namespace PosApp.Test
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterModule(new PosAppModule());
-            if (customRegistration != null)
-            {
-                customRegistration(containerBuilder);
-            }
+            customRegistration?.Invoke(containerBuilder);
 
             m_container = containerBuilder.Build();
             ResetDatabase();
@@ -27,7 +24,8 @@ namespace PosApp.Test
         {
             const string cleanupSql =
                 "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';" +
-                "EXEC sp_MSForEachTable 'DELETE FROM ?';" +
+                "EXEC sp_MSForEachTable 'IF OBJECT_ID(''?'') NOT IN ( " +
+                "ISNULL(OBJECT_ID(''[dbo].[VersionInfo]''), 0)) DELETE FROM ?';" +
                 "EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'";
 
             string connectionString = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
