@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Filters;
-using PosApp.Dtos;
 using PosApp.Dtos.Responses;
 
 namespace PosApp
@@ -36,6 +35,8 @@ namespace PosApp
                     httpResponseException.Message);
                 return;
             }
+
+            Console.WriteLine(exception.Message);
 
             actionExecutedContext.Response = CreateErrorResponse(
                 actionExecutedContext.Request,

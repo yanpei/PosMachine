@@ -52,6 +52,38 @@ namespace PosApp
                 {
                     httpMethod = new HttpMethodConstraint(HttpMethod.Post)
                 });
+
+            routes.MapHttpRoute(
+                "create promotions",
+                "promotions/{promotionType}",
+                new
+                {
+                    controller = "Promotion",
+                    action = "CreatePromotion"
+                },
+                new
+                {
+                    httpMethod = new HttpMethodConstraint(HttpMethod.Post)
+                });
+
+            routes.MapHttpRoute(
+                "get promotion barcodes",
+                "promotions/{promotionType}",
+                new
+                {
+                    controller = "Promotion",
+                    action = "GetPromotion"
+                },
+                new
+                {
+                    httpMethod = new HttpMethodConstraint(HttpMethod.Get)
+                });
+
+            routes.MapRoute(
+                "promotions/{promotionType}",
+                "Promotion",
+                "DeletePromotion",
+                HttpMethod.Delete);
         }
     }
 }

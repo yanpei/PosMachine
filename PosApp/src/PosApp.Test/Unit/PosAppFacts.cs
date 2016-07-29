@@ -78,7 +78,7 @@ namespace PosApp.Test.Unit
         }
 
         [Fact]
-        public void should_calculate_total()
+        public void should_calculate_total_not_promoted()
         {
             // given
             CreateProductFixture(
@@ -89,10 +89,103 @@ namespace PosApp.Test.Unit
 
             // when
             Receipt receipt = posService.GetReceipt(
+                new[] { new BoughtProduct("barcode001", 2), new BoughtProduct("barcode002", 1) });
+
+            Assert.Equal(40M, receipt.Total);
+        }
+
+        [Fact]
+        public void should_calculate_total_promoted()
+        {
+            // given
+            CreateProductFixture(
+                new Product { Barcode = "barcode001", Price = 10M, Name = "I do not care" },
+                new Product { Barcode = "barcode002", Price = 20M, Name = "I do not care" });
+            CreatePromotionFixture(
+                new Promotion { Name = "BUY_TWO_GET_ONE", barcode = "barcode002" });
+
+            PosService posService = CreatePosService();
+
+            // when
+            Receipt receipt = posService.GetReceipt(
                 new[] { new BoughtProduct("barcode001", 2), new BoughtProduct("barcode002", 3) });
 
-            Assert.Equal(80M, receipt.Total);
+            Assert.Equal(60M, receipt.Total);
         }
+
+        [Fact]
+        public void should_get_subpromoted()
+        {
+            // given
+            CreateProductFixture(
+                new Product {Barcode = "barcode001", Price = 1, Name = "I do not care"});
+            CreatePromotionFixture(
+                new Promotion {Name = "BUY_TWO_GET_ONE", barcode = "barcode001"});
+            PosService posService = CreatePosService();
+
+            // when
+            Receipt receipt = posService.GetReceipt(
+                new[] { new BoughtProduct("barcode001", 3)});
+
+            Assert.Equal(1M, receipt.ReceiptItems.Single().Promoted);
+        }
+
+        [Fact]
+        public void should_get_subpromoted_is_0()
+        {
+            // given
+            CreateProductFixture(
+                new Product { Barcode = "barcode001", Price = 1, Name = "I do not care" },
+                new Product { Barcode = "barcode002", Price = 1, Name = "I do not care" }
+                );
+            CreatePromotionFixture(
+                new Promotion { Name = "BUY_TWO_GET_ONE", barcode = "barcode001" });
+            PosService posService = CreatePosService();
+
+            // when
+            Receipt receipt = posService.GetReceipt(
+                new[] { new BoughtProduct("barcode002", 3) });
+
+            Assert.Equal(0M, receipt.ReceiptItems.Single().Promoted);
+
+        }
+
+        [Fact]
+        public void should_get_promoted_total()
+        {
+            CreateProductFixture(
+            new Product { Barcode = "barcode001", Price = 1, Name = "I do not care" },
+            new Product { Barcode = "barcode002", Price = 1, Name = "I do not care" });
+            CreatePromotionFixture(
+                new Promotion { Name = "BUY_TWO_GET_ONE", barcode = "barcode001" });
+            PosService posService = CreatePosService();
+
+            // when
+            Receipt receipt = posService.GetReceipt(
+                new[] { new BoughtProduct("barcode001", 3) });
+
+            Assert.Equal(1M, receipt.Promoted);
+        }
+
+        [Fact]
+        public void should_get_promoted_total_0()
+        {
+            CreateProductFixture(
+            new Product { Barcode = "barcode001", Price = 1, Name = "I do not care" },
+            new Product { Barcode = "barcode002", Price = 1, Name = "I do not care" });
+            CreatePromotionFixture(
+                new Promotion { Name = "BUY_TWO_GET_ONE", barcode = "barcode001" });
+            PosService posService = CreatePosService();
+
+            // when
+            Receipt receipt = posService.GetReceipt(
+                new[] { new BoughtProduct("barcode001", 2) });
+
+            Assert.Equal(0M, receipt.Promoted);
+        }
+
+
+
 
         PosService CreatePosService()
         {
@@ -100,9 +193,16 @@ namespace PosApp.Test.Unit
             return posService;
         }
 
+
         void CreateProductFixture(params Product[] products)
         {
             Array.ForEach(products, p => Fixtures.Products.Create(p));
+        }
+
+        void CreatePromotionFixture(params Promotion[] promotions)
+        {
+            Array.ForEach(promotions, p => Fixtures.Promotion.Create(p));
+
         }
     }
 }

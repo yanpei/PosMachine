@@ -17,12 +17,13 @@ namespace PosApp.Dtos.Responses
                 .Select(ri =>
                 {
                     string price = ri.Total.ToString("F2");
-                    return $"Product: {ri.Product.Name}, Amount: {ri.Amount}, Price: {price}";
+                    return $"Product: {ri.Product.Name}, Amount: {ri.Amount}, Price: {price}, Promoted: {ri.Promoted.ToString("F2")}";
                 })
                 .ForEach(ri => receiptBuilder.AppendLine(ri));
 
             return receiptBuilder
                 .AppendLine("--------------------------------------------------")
+                .Append($"Promoted: {receipt.Promoted.ToString("F2")}")
                 .Append($"Total: {receipt.Total.ToString("F2")}")
                 .ToString();
         }
